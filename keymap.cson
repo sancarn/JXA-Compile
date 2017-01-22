@@ -32,7 +32,4 @@
 # http://flight-manual.atom.io/using-atom/sections/basic-customization/#_cson
 
 '.editor:not(.mini)':
-  'shift-cmd-h': 'hex:view'
-  'alt-down':'editor:add-selection-below'
-  'alt-up':'editor:add-selection-above'
   'cmd-k':'jxa:compile'
