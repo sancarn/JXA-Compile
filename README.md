@@ -17,4 +17,5 @@ include("../other/dir/someFile.js")
 I also intend to make it compatible with compiled `.scpt` files.
 
 See it in action:
+
 [![See it in action!](http://img.youtube.com/vi/7qgOoWOXCk4/0.jpg)](http://www.youtube.com/watch?v=7qgOoWOXCk4)
