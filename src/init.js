@@ -53,9 +53,10 @@ atom.commands.add('atom-text-editor', 'jxa:compile', function(){
     var cmd = 'osacompile -l JavaScript -o ' + compiFile + ' -s ' + builtFile;
     var child = exec(cmd, function(error, stdout, stderr) {
         // command output is in stdout
-        console.log('Error:' + error)
-        console.log('StdOut:' + stdout)
-        console.log('StdErr:' + stderr)
+        if(error !== null){
+            const regex = /: error: (.*)/g;
+            atom.notifications.addError(regex.exec(stderr)[1],{dismissable:true});
+        }
     });
 
     //Delete built file after compilation has finished.
@@ -89,9 +90,10 @@ atom.commands.add('atom-text-editor', 'jxa:compileApp', function(){
     var cmd = 'osacompile -l JavaScript -o ' + compiFile + ' -s ' + builtFile;
     var child = exec(cmd, function(error, stdout, stderr) {
         // command output is in stdout
-        console.log('Error:' + error)
-        console.log('StdOut:' + stdout)
-        console.log('StdErr:' + stderr)
+        if(error !== null){
+            const regex = /: error: (.*)/g;
+            atom.notifications.addError(regex.exec(stderr)[1],{dismissable:true});
+        }
     });
 
     //Delete built file after compilation has finished.
@@ -125,36 +127,31 @@ atom.commands.add('atom-text-editor', 'jxa:execute', function(){
     var cmd = 'osacompile -l JavaScript -o ' + compiFile + ' ' + builtFile;
     exec(cmd, function(error, stdout, stderr) {
         // command output is in stdout
-        console.log('Error:' + error)
-        console.log('StdOut:' + stdout)
-        console.log('StdErr:' + stderr)
-    });
+        if(error !== null){
+            const regex = /: error: (.*)/g;
+            atom.notifications.addError(regex.exec(stderr)[1],{dismissable:true});
+        } else {
+            //Run command:
+            //osacompile -l JavaScript -o newFilepath newFilepath
+            //To compile to app use .App as newFilepath extension
+            var exec = require('child_process').exec;
+            var cmd = 'osascript ' + compiFile
+            var child = exec(cmd, function(error, stdout, stderr) {
+                //console.log(error)
+                if(error !== null){
+                    atom.notifications.addError(stderr,{dismissable:true})
+                } else {
+                    if(!alreadyCompiled){
+                        fs.unlinkSync(compiFile);
+                    }
 
-    //Sleep until compiled
-    while(!fs.existsSync(compiFile)){}
-
-    //Run command:
-    //osacompile -l JavaScript -o newFilepath newFilepath
-    //To compile to app use .App as newFilepath extension
-    var exec = require('child_process').exec;
-    var cmd = 'osascript ' + compiFile
-    var child = exec(cmd, function(error, stdout, stderr) {
-        // command output is in stdout
-        console.log('Error:' + error)
-        console.log('StdOut:' + stdout)
-        console.log('StdErr:' + stderr)
-    });
-
-    //When executed delete compiFile and builtFile
-    child.on('exit', function(){
-        // Delete compiFile if it wasn't compiled before
-        if(!alreadyCompiled){
-            fs.unlinkSync(compiFile);
+                    // Delete builtFile
+                    fs.unlinkSync(builtFile);
+                }
+            });
         }
+    });
 
-        // Delete builtFile
-        fs.unlinkSync(builtFile);
-    })
 });
 
 
@@ -211,7 +208,7 @@ function build(editor){
     if(fs.existsSync(newFilepath)){
         fs.unlinkSync(newFilepath);
     }
-    
+
     //Write new file:
     fs.writeFileSync(newFilepath,script);
 
